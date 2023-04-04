@@ -46,7 +46,7 @@ if ! flyctl status --app "$app"; then
   fi
 
   cd "$path" || exit
-  flyctl deploy --app "$app" --region "$region" --image "$image" --dockerfile "$dockerfile" --region "$region" --strategy immediate
+  flyctl deploy --config "$config" --app "$app" --region "$region" --image "$image" --dockerfile "$dockerfile" --region "$region" --strategy immediate
 
 elif [ "$INPUT_UPDATE" != "false" ]; then
   flyctl deploy --config "$config" --app "$app" --region "$region" --image "$image" --dockerfile "$dockerfile" --region "$region" --strategy immediate
