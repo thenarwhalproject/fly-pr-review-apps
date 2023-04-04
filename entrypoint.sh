@@ -2,11 +2,6 @@
 
 set -ex
 
-if [ -n "$INPUT_PATH" ]; then
-  # Allow user to change directories in which to run Fly commands.
-  cd "$INPUT_PATH" || exit
-fi
-
 PR_NUMBER=$(jq -r .number /github/workflow/event.json)
 if [ -z "$PR_NUMBER" ]; then
   echo "This action only supports pull_request actions."
@@ -24,6 +19,7 @@ org="${INPUT_ORG:-${FLY_ORG:-personal}}"
 image="$INPUT_IMAGE"
 config="$INPUT_CONFIG"
 dockerfile="$INPUT_DOCKERFILE"
+path="$INPUT_PATH"
 
 if ! echo "$app" | grep "$PR_NUMBER"; then
   echo "For safety, this action requires the app's name to contain the PR number."
@@ -38,13 +34,13 @@ fi
 
 # Deploy the Fly app, creating it first if needed.
 if ! flyctl status --app "$app"; then
-  flyctl launch --no-deploy --copy-config --name "$app" --image "$image" --dockerfile "$dockerfile" --region "$region" --org "$org"
+  flyctl launch "$path" --no-deploy --copy-config --name "$app" --image "$image" --dockerfile "$dockerfile" --region "$region" --org "$org"
   if [ -n "$INPUT_SECRETS" ]; then
     echo $INPUT_SECRETS | tr " " "\n" | flyctl secrets import --app "$app"
   fi
   flyctl deploy --app "$app" --region "$region" --image "$image" --dockerfile "$dockerfile" --region "$region" --strategy immediate
 elif [ "$INPUT_UPDATE" != "false" ]; then
-  flyctl deploy --config "$config" --app "$app" --region "$region" --image "$image" --dockerfile "$dockerfile" --region "$region" --strategy immediate
+  flyctl deploy --app "$app" --region "$region" --image "$image" --dockerfile "$dockerfile" --region "$region" --strategy immediate
 fi
 
 # Attach postgres cluster to the app if specified.
