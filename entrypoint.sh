@@ -39,7 +39,7 @@ if ! flyctl status --app "$app"; then
     cd "$INPUT_PATH" || exit
   fi
 
-  flyctl launch --no-deploy --copy-config --name "$app" --image "$image" --dockerfile "$dockerfile" --region "$region" --org "$org"
+  flyctl launch --no-deploy --copy-config --name "$app" --image "$image" --region "$region" --org "$org"
 
   if [ -n "$INPUT_SECRETS" ]; then
     echo $INPUT_SECRETS | tr " " "\n" | flyctl secrets import --app "$app"
